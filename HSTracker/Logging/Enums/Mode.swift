@@ -8,20 +8,22 @@
 
 import Foundation
 
-enum Mode : String {
-    case INVALID,
-    STARTUP,
-    LOGIN,
-    HUB,
-    GAMEPLAY,
-    COLLECTIONMANAGER,
-    PACKOPENING,
-    TOURNAMENT,
-    FRIENDLY,
-    FATAL_ERROR,
-    DRAFT,
-    CREDITS,
-    RESET,
-    ADVENTURE,
-    TAVERN_BRAWL
+// swiftlint:disable type_name
+
+enum Mode: String {
+    case invalid,
+    startup,
+    login,
+    hub,
+    gameplay,
+    collectionmanager,
+    packopening,
+    tournament,
+    friendly,
+    fatal_error,
+    draft,
+    credits,
+    reset,
+    adventure,
+    tavern_brawl
 }

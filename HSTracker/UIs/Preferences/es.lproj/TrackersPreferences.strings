@@ -1,30 +1,33 @@
 
-/* Class = "NSButtonCell"; title = "Show opponent in-hand card huds"; ObjectID = "50X-Tt-yJa"; */
-"50X-Tt-yJa.title" = "Mostrar información en las cartas en mano del rival";
-
 /* Class = "NSButtonCell"; title = "Auto position trackers"; ObjectID = "5rZ-fg-pB4"; */
 "5rZ-fg-pB4.title" = "Posición automática de los trackers";
 
-/* Class = "NSButtonCell"; title = "Show opponent tracker"; ObjectID = "MLJ-7t-LVJ"; */
-"MLJ-7t-LVJ.title" = "Mostrar el tracker del rival";
-
-/* Class = "NSButtonCell"; title = "Show player tracker"; ObjectID = "MiE-Lr-Vdi"; */
-"MiE-Lr-Vdi.title" = "Mostrar el tracker propio";
+/* Class = "NSButtonCell"; title = "Show card on tracker hover"; ObjectID = "HY0-s6-p7U"; */
+"HY0-s6-p7U.title" = "Mostrar cartas al pasar por encima del tracker";
 
 /* Class = "NSTextFieldCell"; title = "Cards size"; ObjectID = "NLB-ON-zWk"; */
 "NLB-ON-zWk.title" = "Tamaño de carta";
 
 /* Class = "NSButtonCell"; title = "Highlight last drawn card"; ObjectID = "WKT-Hm-Z7h"; */
-"WKT-Hm-Z7h.title" = "Resaltar la última carta robada";
+"WKT-Hm-Z7h.title" = "Tamaño de carta";
 
-/* Class = "NSComboBoxCell"; ar6-6g-GKv.ibShadowedObjectValues[0] = "Small"; ObjectID = "ar6-6g-GKv"; */
-"ar6-6g-GKv.ibShadowedObjectValues[0]" = "Pequeño";
+/* Class = "NSComboBoxCell"; ar6-6g-GKv.ibShadowedObjectValues[0] = "Tiny"; ObjectID = "ar6-6g-GKv"; */
+"ar6-6g-GKv.ibShadowedObjectValues[0]" = "Tiny";
 
-/* Class = "NSComboBoxCell"; ar6-6g-GKv.ibShadowedObjectValues[1] = "Medium"; ObjectID = "ar6-6g-GKv"; */
-"ar6-6g-GKv.ibShadowedObjectValues[1]" = "Mediano";
+/* Class = "NSComboBoxCell"; ar6-6g-GKv.ibShadowedObjectValues[1] = "Small"; ObjectID = "ar6-6g-GKv"; */
+"ar6-6g-GKv.ibShadowedObjectValues[1]" = "Pequeño";
 
-/* Class = "NSComboBoxCell"; ar6-6g-GKv.ibShadowedObjectValues[2] = "Big"; ObjectID = "ar6-6g-GKv"; */
-"ar6-6g-GKv.ibShadowedObjectValues[2]" = "Grande";
+/* Class = "NSComboBoxCell"; ar6-6g-GKv.ibShadowedObjectValues[2] = "Medium"; ObjectID = "ar6-6g-GKv"; */
+"ar6-6g-GKv.ibShadowedObjectValues[2]" = "Mediano";
+
+/* Class = "NSComboBoxCell"; ar6-6g-GKv.ibShadowedObjectValues[3] = "Big"; ObjectID = "ar6-6g-GKv"; */
+"ar6-6g-GKv.ibShadowedObjectValues[3]" = "Grande";
+
+/* Class = "NSComboBoxCell"; ar6-6g-GKv.ibShadowedObjectValues[4] = "Huge"; ObjectID = "ar6-6g-GKv"; */
+"ar6-6g-GKv.ibShadowedObjectValues[4]" = "Huge";
+
+/* Class = "NSButtonCell"; title = "Show rarity colors"; ObjectID = "h5J-7C-d2f"; */
+"h5J-7C-d2f.title" = "Colorear cartas según rareza";
 
 /* Class = "NSButtonCell"; title = "Highlight cards in hand"; ObjectID = "hJI-dG-QeP"; */
 "hJI-dG-QeP.title" = "Resaltar las cartas en mano";
@@ -47,6 +50,17 @@
 /* Class = "NSTextFieldCell"; title = "Opacity"; ObjectID = "zP3-ns-ggP"; */
 "zP3-ns-ggP.title" = "Opacidad";
 
-/* Class = "NSButtonCell"; title = "Show rarity colors"; ObjectID = "h5J-7C-d2f"; */
-"h5J-7C-d2f.title" = "Show rarity colors";
+/* Class = "NSTextFieldCell"; title = "Theme"; ObjectID = "Lah-xh-QVg"; */
+"Lah-xh-QVg.title" = "Theme";
 
+/* Class = "NSComboBoxCell"; cBa-wb-tRb.ibShadowedObjectValues[0] = "Classic"; ObjectID = "cBa-wb-tRb"; */
+"cBa-wb-tRb.ibShadowedObjectValues[0]" = "Classic";
+
+/* Class = "NSComboBoxCell"; cBa-wb-tRb.ibShadowedObjectValues[1] = "Frost"; ObjectID = "cBa-wb-tRb"; */
+"cBa-wb-tRb.ibShadowedObjectValues[1]" = "Frost";
+
+/* Class = "NSComboBoxCell"; cBa-wb-tRb.ibShadowedObjectValues[2] = "Dark"; ObjectID = "cBa-wb-tRb"; */
+"cBa-wb-tRb.ibShadowedObjectValues[2]" = "Dark";
+
+/* Class = "NSComboBoxCell"; cBa-wb-tRb.ibShadowedObjectValues[3] = "Minimal"; ObjectID = "cBa-wb-tRb"; */
+"cBa-wb-tRb.ibShadowedObjectValues[3]" = "Minimal";

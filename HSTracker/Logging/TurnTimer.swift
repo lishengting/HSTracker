@@ -9,7 +9,7 @@
 import Foundation
 import CleanroomLogger
 
-@objc final class TurnTimer : NSObject {
+@objc final class TurnTimer: NSObject {
     static let instance = TurnTimer()
 
     private(set) var seconds: Int = 75
@@ -18,29 +18,28 @@ import CleanroomLogger
     private var turnTime: Int = 75
     private var timer: NSTimer?
     private var isPlayersTurn: Bool {
-        return game?.playerEntity?.hasTag(.CURRENT_PLAYER) ?? false
+        return game?.playerEntity?.has(tag: .current_player) ?? false
     }
     private var game: Game?
-    
-    func setPlayer(player: PlayerType)
-    {
+
+    func setPlayer(player: PlayerType) {
         guard let _ = game else {
             seconds = 75
             return
         }
-        
-        if player == .Player && game!.playerEntity != nil {
-            seconds = game!.playerEntity!.hasTag(.TIMEOUT) ? game!.playerEntity!.getTag(.TIMEOUT) : 75
-        }
-        else if player == .Opponent && game!.opponentEntity != nil {
-            seconds = game!.opponentEntity!.hasTag(.TIMEOUT) ? game!.opponentEntity!.getTag(.TIMEOUT) : 75
-        }
-        else {
+
+        if player == .player && game!.playerEntity != nil {
+            seconds = game!.playerEntity!.has(tag: .timeout)
+                ? game!.playerEntity![.timeout] : 75
+        } else if player == .opponent && game!.opponentEntity != nil {
+            seconds = game!.opponentEntity!.has(tag: .timeout)
+                ? game!.opponentEntity![.timeout] : 75
+        } else {
             seconds = 75
             Log.warning?.message("Could not update timer, both player entities are null")
         }
     }
-    
+
     func start(game: Game?) {
         guard let _ = game else {
             Log.warning?.message("Could not start timer, game is null")
@@ -55,7 +54,7 @@ import CleanroomLogger
         playerSeconds = 0
         opponentSeconds = 0
         seconds = 75
-        
+
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
             if game!.playerEntity == nil {
                 Log.verbose?.message("Waiting for player entity")
@@ -69,8 +68,11 @@ import CleanroomLogger
                     NSThread.sleepForTimeInterval(0.1)
                 }
             }
-            
+
             dispatch_async(dispatch_get_main_queue()) {
+                if self.timer != nil {
+                    self.timer!.invalidate()
+                }
                 self.timer = NSTimer.scheduledTimerWithTimeInterval(1,
                     target: self,
                     selector: #selector(TurnTimer.timerTick),
@@ -82,7 +84,7 @@ import CleanroomLogger
 
     func stop() {
         guard let _ = game else {return}
-        
+
         Log.info?.message("Stopping turn timer")
         timer?.invalidate()
         game = nil
@@ -96,13 +98,14 @@ import CleanroomLogger
         if Game.instance.isMulliganDone() {
             if isPlayersTurn {
                 playerSeconds += 1
-            }
-            else {
+            } else {
                 opponentSeconds += 1
             }
         }
         dispatch_async(dispatch_get_main_queue()) {
-            Game.instance.timerHud?.tick(self.seconds, self.playerSeconds, self.opponentSeconds)
+            Game.instance.timerHud?.tick(self.seconds,
+                                         playerSeconds: self.playerSeconds,
+                                         opponentSeconds: self.opponentSeconds)
         }
     }
 }

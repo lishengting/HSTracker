@@ -90,7 +90,25 @@
 "uRl-iY-unG.title" = "剪切";
 
 /* Class = "NSMenuItem"; title = "Help"; ObjectID = "wpr-3q-Mcd"; */
-"wpr-3q-Mcd.title" = "Help";
+"wpr-3q-Mcd.title" = "帮助";
 
 /* Class = "NSMenuItem"; title = "Copy"; ObjectID = "x3v-GG-iWU"; */
 "x3v-GG-iWU.title" = "拷贝";
+
+/* Class = "NSMenuItem"; title = "Close"; ObjectID = "cHz-nn-4Ia"; */
+"cHz-nn-4Ia.title" = "关闭";
+
+/* Class = "NSMenuItem"; title = "Check for Updates..."; ObjectID = "4yc-yU-eH1"; */
+"4yc-yU-eH1.title" = "检测更新…";
+
+/* Class = "NSMenuItem"; title = "Replays"; ObjectID = "esn-TJ-7Ds"; */
+"esn-TJ-7Ds.title" = "录象";
+
+/* Class = "NSMenuItem"; title = "Open replays directory"; ObjectID = "yTs-jD-geS"; */
+"yTs-jD-geS.title" = "打开录像的目录";
+
+/* Class = "NSMenuItem"; title = "Last replays"; ObjectID = "gKK-Xg-cTS"; */
+"gKK-Xg-cTS.title" = "Last replays";
+
+/* Class = "NSMenuItem"; title = "Load from file"; ObjectID = "gJj-4D-mrw"; */
+"gJj-4D-mrw.title" = "Load from file";

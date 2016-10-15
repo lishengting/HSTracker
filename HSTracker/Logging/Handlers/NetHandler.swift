@@ -12,13 +12,14 @@ import Foundation
 
 struct NetHandler {
 
-    let ConnectRegex = "ConnectAPI\\.GotoGameServer -- address=(.+), game=(.+), client=(.+), spectateKey=(.+)"
+    let ConnectRegex = "ConnectAPI\\.GotoGameServer -- address=(.+), "
+        + "game=(.+), client=(.+), spectateKey=(.+)"
 
-    func handle(game: Game, _ line: String) {
+    func handle(game: Game, logLine: LogLine) {
 
-        if line.match(ConnectRegex) {
+        if logLine.line.match(ConnectRegex) {
             // let match = line.firstMatchWithDetails(NSRegularExpression.rx(regex))
-            game.gameStart()
+            game.gameStart(logLine.time)
         }
     }
 }

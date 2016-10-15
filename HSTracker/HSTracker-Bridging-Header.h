@@ -16,4 +16,8 @@
 #import <HockeySDK/HockeySDK.h>
 #endif
 
+#import <Sparkle/Sparkle.h>
+
+#import "CVRankDetectorWrapper.hpp"
+
 #endif /* HSTracker_Bridging_Header_h */

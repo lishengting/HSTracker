@@ -9,7 +9,7 @@
 import Foundation
 import MASPreferences
 
-class TrackersPreferences : NSViewController, MASPreferencesViewController {
+class TrackersPreferences: NSViewController {
 
     @IBOutlet weak var highlightCardsInHand: NSButton!
     @IBOutlet weak var highlightLastDrawn: NSButton!
@@ -18,31 +18,38 @@ class TrackersPreferences : NSViewController, MASPreferencesViewController {
     @IBOutlet weak var highlightDiscarded: NSButton!
     @IBOutlet weak var opacity: NSSlider!
     @IBOutlet weak var cardSize: NSComboBox!
-    @IBOutlet weak var showOpponentTracker: NSButton!
-    @IBOutlet weak var showPlayerTracker: NSButton!
     @IBOutlet weak var showTimer: NSButton!
-    @IBOutlet weak var showCardHuds: NSButton!
     @IBOutlet weak var autoPositionTrackers: NSButton!
     @IBOutlet weak var showSecretHelper: NSButton!
     @IBOutlet weak var showRarityColors: NSButton!
-    
+    @IBOutlet weak var showFloatingCard: NSButton!
+    @IBOutlet weak var theme: NSComboBox!
+
+    let themes = ["classic", "frost", "dark", "minimal"]
+
     override func viewDidLoad() {
         super.viewDidLoad()
         let settings = Settings.instance
         highlightCardsInHand.state = settings.highlightCardsInHand ? NSOnState : NSOffState
         highlightLastDrawn.state = settings.highlightLastDrawn ? NSOnState : NSOffState
         removeCards.state = settings.removeCardsFromDeck ? NSOnState : NSOffState
-        showPlayerGet.state = settings.showPlayerGet ? NSOnState : NSOffState
         highlightDiscarded.state = settings.highlightDiscarded ? NSOnState : NSOffState
         opacity.doubleValue = settings.trackerOpacity
-        cardSize.selectItemAtIndex(settings.cardSize.rawValue)
-        showOpponentTracker.state = settings.showOpponentTracker ? NSOnState : NSOffState
-        showPlayerTracker.state = settings.showPlayerTracker ? NSOnState : NSOffState
+        let index: Int
+        switch settings.cardSize {
+        case .tiny: index = 0
+        case .small: index = 1
+        case .medium: index = 2
+        case .big: index = 3
+        case .huge: index = 4
+        }
+        cardSize.selectItemAtIndex(index)
         showTimer.state = settings.showTimer ? NSOnState : NSOffState
-        showCardHuds.state = settings.showCardHuds ? NSOnState : NSOffState
         autoPositionTrackers.state = settings.autoPositionTrackers ? NSOnState : NSOffState
         showSecretHelper.state = settings.showSecretHelper ? NSOnState : NSOffState
         showRarityColors.state = settings.showRarityColors ? NSOnState : NSOffState
+        showFloatingCard.state = settings.showFloatingCard ? NSOnState : NSOffState
+        theme.selectItemAtIndex(themes.indexOf(settings.theme) ?? 0)
     }
 
     @IBAction func sliderChange(sender: AnyObject) {
@@ -53,52 +60,52 @@ class TrackersPreferences : NSViewController, MASPreferencesViewController {
     @IBAction func comboboxChange(sender: NSComboBox) {
         let settings = Settings.instance
         if sender == cardSize {
-        settings.cardSize = CardSize(rawValue: cardSize.indexOfSelectedItem)!
+            if let value = cardSize.objectValueOfSelectedItem as? String {
+                let size: CardSize
+                switch value {
+                case NSLocalizedString("Tiny", comment: ""): size = .tiny
+                case NSLocalizedString("Small", comment: ""): size = .small
+                case NSLocalizedString("Big", comment: ""): size = .big
+                case NSLocalizedString("Huge", comment: ""): size = .huge
+                default: size = .medium
+                }
+                settings.cardSize = size
+            }
+        } else if sender == theme {
+            settings.theme = themes[theme.indexOfSelectedItem] ?? "dark"
         }
     }
 
     @IBAction func checkboxClicked(sender: NSButton) {
         let settings = Settings.instance
-        
+
         if sender == highlightCardsInHand {
             settings.highlightCardsInHand = highlightCardsInHand.state == NSOnState
-        }
-        else if sender == highlightLastDrawn {
+        } else if sender == highlightLastDrawn {
             settings.highlightLastDrawn = highlightLastDrawn.state == NSOnState
-        }
-        else if sender == removeCards {
+        } else if sender == removeCards {
             settings.removeCardsFromDeck = removeCards.state == NSOnState
-        }
-        else if sender == showPlayerGet {
-            settings.showPlayerGet = showPlayerGet.state == NSOnState
-        }
-        else if sender == highlightDiscarded {
+        } else if sender == highlightDiscarded {
             settings.highlightDiscarded = highlightDiscarded.state == NSOnState
-        }
-        else if sender == showOpponentTracker {
-            settings.showOpponentTracker = showOpponentTracker.state == NSOnState
-        }
-        else if sender == showPlayerTracker {
-            settings.showPlayerTracker = showPlayerTracker.state == NSOnState
-        }
-        else if sender == autoPositionTrackers {
+        } else if sender == autoPositionTrackers {
             settings.autoPositionTrackers = autoPositionTrackers.state == NSOnState
             if settings.autoPositionTrackers {
                 settings.windowsLocked = true
             }
-        }
-        else if sender == showSecretHelper {
+        } else if sender == showSecretHelper {
             settings.showSecretHelper = showSecretHelper.state == NSOnState
-        }
-        else if sender == showRarityColors {
+        } else if sender == showRarityColors {
             settings.showRarityColors = showRarityColors.state == NSOnState
-        }
-        else if sender == showTimer {
+        } else if sender == showTimer {
             settings.showTimer = showTimer.state == NSOnState
+        } else if sender == showFloatingCard {
+            settings.showFloatingCard = showFloatingCard.state == NSOnState
         }
     }
+}
 
-    // MARK: - MASPreferencesViewController
+// MARK: - MASPreferencesViewController
+extension TrackersPreferences: MASPreferencesViewController {
     override var identifier: String? {
         get {
             return "trackers"
@@ -108,11 +115,11 @@ class TrackersPreferences : NSViewController, MASPreferencesViewController {
         }
     }
 
-    var toolbarItemImage: NSImage! {
+    var toolbarItemImage: NSImage? {
         return NSImage(named: NSImageNameAdvanced)
     }
 
-    var toolbarItemLabel: String! {
+    var toolbarItemLabel: String? {
         return NSLocalizedString("Trackers", comment: "")
     }
 }

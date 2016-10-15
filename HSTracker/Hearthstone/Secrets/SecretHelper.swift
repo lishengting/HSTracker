@@ -8,13 +8,13 @@
 
 import Foundation
 
-class SecretHelper : Equatable, CustomStringConvertible {
+class SecretHelper: Equatable, CustomStringConvertible {
     private(set) var id: Int
     private(set) var turnPlayed: Int
-    private(set) var heroClass: HeroClass
+    private(set) var heroClass: CardClass
     lazy var possibleSecrets = [String: Bool]()
 
-    init(heroClass: HeroClass, id: Int, turnPlayed: Int) {
+    init(heroClass: CardClass, id: Int, turnPlayed: Int) {
         self.id = id
         self.turnPlayed = turnPlayed
         self.heroClass = heroClass
@@ -23,22 +23,35 @@ class SecretHelper : Equatable, CustomStringConvertible {
             possibleSecrets[$0] = true
         })
     }
+    
+    func trySetSecret(cardId: String, active: Bool) {
+        if let _ = possibleSecrets[cardId] {
+            possibleSecrets[cardId] = active
+        }
+    }
+    
+    func tryGetSecret(cardId: String) -> Bool {
+        guard let active = possibleSecrets[cardId] else { return false }
+        
+        return active
+    }
 
-    static func getMaxSecretCount(heroClass: HeroClass) -> Int {
+    static func getMaxSecretCount(heroClass: CardClass) -> Int {
         return getSecretIds(heroClass).count
     }
 
-    static func getSecretIds(heroClass: HeroClass) -> [String] {
+    static func getSecretIds(heroClass: CardClass) -> [String] {
+        let standardOnly = Game.instance.currentFormat == .standard
         switch heroClass {
-        case .Hunter: return CardIds.Secrets.Hunter.All
-        case .Mage: return CardIds.Secrets.Mage.All
-        case .Paladin: return CardIds.Secrets.Paladin.All
-        default: return [String]()
+        case .hunter: return CardIds.Secrets.Hunter.getCards(standardOnly)
+        case .mage: return CardIds.Secrets.Mage.getCards(standardOnly)
+        case .paladin: return CardIds.Secrets.Paladin.getCards(standardOnly)
+        default: return []
         }
     }
 
     var description: String {
-        return "<\(NSStringFromClass(self.dynamicType)): "
+        return "<SecretHelper: "
             + "id=\(id)"
             + ", turnPlayed=\(turnPlayed)"
             + ", heroClass=\(heroClass)"

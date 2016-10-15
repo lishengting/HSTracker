@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11201" systemVersion="15G1004" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10116"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11201"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -11,8 +11,13 @@
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
-        <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="HSTracker" customModuleProvider="target"/>
+        <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="HSTracker" customModuleProvider="target">
+            <connections>
+                <outlet property="sparkleUpdater" destination="l75-pu-pNN" id="96J-T1-1YU"/>
+            </connections>
+        </customObject>
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
+        <customObject id="l75-pu-pNN" customClass="SUUpdater"/>
         <menu title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
             <items>
                 <menuItem title="HSTracker" id="1Xt-HY-uBw">
@@ -23,6 +28,12 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="orderFrontStandardAboutPanel:" target="-1" id="Exp-CZ-Vem"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Check for Updates..." id="4yc-yU-eH1">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="checkForUpdates:" target="l75-pu-pNN" id="J4d-QU-XvA"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
@@ -121,6 +132,29 @@
                         </items>
                     </menu>
                 </menuItem>
+                <menuItem title="Replays" id="RBa-X9-6k6">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="Replays" id="esn-TJ-7Ds">
+                        <items>
+                            <menuItem title="Open replays directory" id="yTs-jD-geS">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="openReplayDirectory:" target="Voe-Tx-rLC" id="JMS-5j-YFt"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Load from file" id="gJj-4D-mrw" userLabel="Load from file">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="importReplay:" target="Voe-Tx-rLC" id="6N7-Qk-dwx"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Last replays" enabled="NO" id="gKK-Xg-cTS">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Last replays" id="Ck1-T5-ndx"/>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
                 <menuItem title="Window" id="aUF-d1-5bR">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Window" systemMenu="window" id="Td7-aD-5lo">
@@ -136,12 +170,17 @@
                                     <action selector="performMiniaturize:" target="-1" id="VwT-WD-YPe"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Close" keyEquivalent="w" id="cHz-nn-4Ia">
+                                <connections>
+                                    <action selector="performClose:" target="-1" id="Oxl-Qb-FKg"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="SkY-iF-ApN"/>
-                            <menuItem title="Debug" id="jNP-dX-InV">
+                            <menuItem title="Debug" enabled="NO" id="jNP-dX-InV">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Debug" id="hYW-YU-3Sy">
                                     <items>
-                                        <menuItem title="Window positions" id="fkd-3m-6YS">
+                                        <menuItem title="Window positions" enabled="NO" id="fkd-3m-6YS">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="openDebugPositions:" target="Voe-Tx-rLC" id="fHL-kV-mDt"/>

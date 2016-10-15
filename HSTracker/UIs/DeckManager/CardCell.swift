@@ -8,14 +8,34 @@
 
 import Foundation
 
-class CardCell : JNWCollectionViewCell {
+class CardCell: JNWCollectionViewCell {
 
     private var _card: Card?
-    var isArena: Bool = false
+    var showCard = true
+    var isArena = false
+    var cellView: CardBar?
 
     func setCard(card: Card) {
         _card = card
-        self.backgroundImage = ImageCache.cardImage(card)
+        if showCard {
+            if let cellView = cellView {
+                cellView.removeFromSuperview()
+                self.cellView = nil
+            }
+            self.backgroundImage = ImageUtils.cardImage(card)
+        } else {
+            if let cellView = cellView {
+                cellView.card = card
+            } else {
+                cellView = CardBar.factory()
+                cellView?.frame = NSRect(x: 0, y: 0,
+                                         width: CGFloat(kFrameWidth),
+                                         height: CGFloat(kRowHeight))
+                cellView?.card = card
+                cellView?.playerType = .cardList
+                self.addSubview(cellView!)
+            }
+        }
     }
     var card: Card? {
         return _card
@@ -24,7 +44,7 @@ class CardCell : JNWCollectionViewCell {
     func setCount(count: Int) {
         var alpha: Float = 1.0
         if !isArena {
-            if count == 2 || (count == 1 && _card!.rarity == .Legendary) {
+            if count == 2 || (count == 1 && _card!.rarity == .legendary) {
                 alpha = 0.5
             }
         }

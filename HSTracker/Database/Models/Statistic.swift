@@ -7,61 +7,73 @@
 //
 
 import Foundation
+import Unbox
+import Wrap
 
-final class Statistic : Dictable {
-    var gameResult: GameResult = .Unknow
-    var hasCoin: Bool = false
-    var opponentClass: String = ""
-    var opponentName: String = ""
-    var playerRank: Int = 0
-    var playerMode: GameMode = .None
-    var numTurns: Int = 0
-    var date = NSDate()
-    var cards = [String: Int]()
-    
-    func toDict() -> [String: AnyObject] {
-        return [
-            "opponentName": opponentName,
-            "opponentClass": opponentClass,
-            "gameResult": gameResult.rawValue,
-            "hasCoin": Int(hasCoin),
-            "playerRank": playerRank,
-            "playerMode": playerMode.rawValue,
-            "date": date.timeIntervalSince1970,
-            "numTurns": numTurns,
-            "cards": cards
-        ]
+final class Statistic: Unboxable {
+    var gameResult: GameResult = .unknow
+    var hasCoin = false
+    var opponentClass: CardClass = .neutral
+    var opponentRank: Int?
+    var opponentLegendRank: Int?
+    var opponentName = ""
+    var legendRank: Int?
+    var playerRank = 0
+    var playerMode: GameMode = .none
+    var numTurns = 0
+    var date: NSDate?
+    var cards: [String: Int] = [:]
+    var duration = 0
+    var note: String? = ""
+    var season: Int?
+    var hsReplayId: String?
+    var deck: Deck?
+
+    init() {
+        date = NSDate()
     }
-    
-    static func fromDict(dict: [String: AnyObject]) -> Statistic? {
-        if let opponentName = dict["opponentName"] as? String,
-            opponentClass = dict["opponentClass"] as? String,
-            gameResult = dict["gameResult"] as? Int {
-            let statistic = Statistic()
-            statistic.opponentName = opponentName
-            statistic.opponentClass = opponentClass
-            statistic.gameResult = GameResult(rawValue: gameResult)!
-            
-            if let hasCoin = dict["hasCoin"] as? Int {
-                statistic.hasCoin = Bool(hasCoin)
-            }
-            if let playerRank = dict["playerRank"] as? Int {
-                statistic.playerRank = playerRank
-            }
-            if let playerMode = dict["playerMode"] as? Int {
-                statistic.playerMode = GameMode(rawValue: playerMode)!
-            }
-            if let date = dict["date"] as? Double {
-                statistic.date = NSDate(timeIntervalSince1970: date)
-            }
-            if let numTurns = dict["numTurns"] as? Int {
-                statistic.numTurns = numTurns
-            }
-            if let cards = dict["cards"] as? [String: Int] {
-                statistic.cards = cards
-            }
-            return statistic
+
+    init(unboxer: Unboxer) {
+        self.gameResult = unboxer.unbox("gameResult")
+        self.hasCoin = unboxer.unbox("hasCoin")
+        if let cardClass: CardClass? = unboxer.unbox("opponentClass"),
+            opponentClass = cardClass {
+            self.opponentClass = opponentClass
+        } else {
+            let opponentClass: String = unboxer.unbox("opponentClass")
+            self.opponentClass = CardClass(rawValue: opponentClass.lowercaseString) ?? .neutral
         }
-        return nil
+        
+        self.opponentName = unboxer.unbox("opponentName")
+        self.opponentRank = unboxer.unbox("opponentRank")
+        self.opponentLegendRank = unboxer.unbox("opponentLegendRank")
+        self.playerRank = unboxer.unbox("playerRank")
+        self.legendRank = unboxer.unbox("legendRank")
+        self.playerMode = unboxer.unbox("playerMode")
+        self.numTurns = unboxer.unbox("numTurns")
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "YYYY-MM-dd HH:mm:ss"
+        self.date = unboxer.unbox("date", formatter: dateFormatter)
+        if self.date == nil {
+            // support old version
+            self.date = NSDate(timeIntervalSince1970: unboxer.unbox("date"))
+        }
+        self.cards = unboxer.unbox("cards")
+        self.duration = unboxer.unbox("duration")
+        self.note = unboxer.unbox("note")
+        self.season = unboxer.unbox("season")
+        if let date = self.date where self.season == nil {
+            self.season = (date.year - 2014) * 12 - 3 + date.month
+        }
+        self.hsReplayId = unboxer.unbox("hsReplayId")
+    }
+}
+
+extension Statistic: WrapCustomizable {
+    func keyForWrappingPropertyNamed(propertyName: String) -> String? {
+        if propertyName == "deck" {
+            return nil
+        }
+        return propertyName
     }
 }

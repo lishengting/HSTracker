@@ -9,12 +9,13 @@
  */
 
 import Foundation
+import Wrap
 
-enum CardMark: Int {
-    case None,
-    Coin,
-    Returned,
-    Mulliganed,
-    Created,
-    Kept
+enum CardMark: Int, WrappableEnum {
+    case none,
+    coin,
+    returned,
+    mulliganed,
+    created,
+    kept
 }

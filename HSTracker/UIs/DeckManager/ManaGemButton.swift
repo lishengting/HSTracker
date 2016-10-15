@@ -7,35 +7,36 @@
 //
 
 import Foundation
+import TextAttributes
 
 class ManaGemButtonCell: NSButtonCell {
-    override func drawTitle(title: NSAttributedString, withFrame frame: NSRect, inView controlView: NSView) -> NSRect {
-        return super.drawTitle(title, withFrame: NSMakeRect(2, -4, 28, 32), inView: controlView)
+    override func drawTitle(title: NSAttributedString,
+                            withFrame frame: NSRect,
+                                      inView controlView: NSView) -> NSRect {
+        return super.drawTitle(title,
+                               withFrame: NSRect(x: 2, y: -4, width: 28, height: 32),
+                               inView: controlView)
     }
 }
 
 class ManaGemButton: NSButton {
     var selected: Bool = false {
         willSet(value) {
-            self.image = value ? ImageCache.asset("mana-selected") : ImageCache.asset("mana-dark")
+            self.image = value ? NSImage(named: "mana-selected") : NSImage(named: "mana-dark")
         }
     }
-    
+
     @IBInspectable var textColor: NSColor = NSColor.whiteColor()
-  
+
     override func awakeFromNib() {
         super.awakeFromNib()
-        
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.alignment = .Center
-        
-        let style = [
-            NSFontAttributeName: NSFont(name: "Belwe Bd BT", size: 20)!,
-            NSForegroundColorAttributeName: textColor,
-            NSStrokeWidthAttributeName: -2,
-            NSStrokeColorAttributeName: NSColor.blackColor(),
-            NSParagraphStyleAttributeName: paragraph
-        ]
-        self.attributedTitle = NSAttributedString(string: self.title, attributes: style)
+
+        let attributes = TextAttributes()
+            .alignment(.Center)
+            .font(NSFont(name: "Belwe Bd BT", size: 20))
+            .foregroundColor(textColor)
+            .strokeWidth(-2)
+            .strokeColor(NSColor.blackColor())
+        self.attributedTitle = NSAttributedString(string: self.title, attributes: attributes)
     }
 }

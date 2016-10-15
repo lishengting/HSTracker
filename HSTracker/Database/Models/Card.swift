@@ -8,23 +8,23 @@
 
 import Foundation
 
-final class Card : Hashable, CustomStringConvertible {
+final class Card: Hashable, CustomStringConvertible {
     // MARK: - Card data
     var id = ""
     var collectible = false
     var cost = 0
-    var faction = ""
+    var faction: Faction = .invalid
     var flavor = ""
     var health = 0
     var attack = 0
     var name = "unknown"
     var enName = ""
-    var playerClass = ""
-    var rarity: Rarity = .Free
-    var set = ""
+    var playerClass: CardClass = .neutral
+    var rarity: Rarity = .free
+    var set: CardSet?
     var text = ""
-    var race = ""
-    var type = "unknown"
+    var race: Race = .invalid
+    var type: CardType = .invalid
     // var mechanics: Set<CardMechanic>
     var isStandard = false
 
@@ -51,17 +51,13 @@ final class Card : Hashable, CustomStringConvertible {
         var color: NSColor
         if highlightDraw && Settings.instance.highlightLastDrawn {
             color = NSColor(red: 1, green: 0.647, blue: 0, alpha: 1)
-        }
-        else if highlightInHand && Settings.instance.highlightCardsInHand {
-            color = NSColor(red: 0.678, green: 1, blue: 0.184, alpha: 1)
-        }
-        else if count <= 0 || jousted {
+        } else if highlightInHand && Settings.instance.highlightCardsInHand {
+            color = Settings.instance.playerInHandColor
+        } else if count <= 0 || jousted {
             color = NSColor(red: 0.501, green: 0.501, blue: 0.501, alpha: 1)
-        }
-        else if wasDiscarded && Settings.instance.highlightDiscarded {
+        } else if wasDiscarded && Settings.instance.highlightDiscarded {
             color = NSColor(red: 0.803, green: 0.36, blue: 0.36, alpha: 1)
-        }
-        else {
+        } else {
             color = NSColor.whiteColor()
         }
         return color
@@ -98,7 +94,7 @@ final class Card : Hashable, CustomStringConvertible {
         return copy
     }
 
-    var description : String {
+    var description: String {
         return "[\(name)(\(id)):\(count)]"
     }
 

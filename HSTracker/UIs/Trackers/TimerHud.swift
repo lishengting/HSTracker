@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TextAttributes
 
 class TimerHud: NSWindowController {
 
@@ -14,52 +15,88 @@ class TimerHud: NSWindowController {
     @IBOutlet weak var turnLabel: NSTextField!
     @IBOutlet weak var playerLabel: NSTextField!
     var currentPlayer: PlayerType?
-    var attributes = [String:AnyObject]()
-    var largeAttributes = [String:AnyObject]()
+    let attributes = TextAttributes()
+    let largeAttributes = TextAttributes()
 
     override func windowDidLoad() {
         super.windowDidLoad()
-        
+
         opponentLabel.stringValue = ""
         turnLabel.stringValue = ""
         playerLabel.stringValue = ""
-        
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.alignment = .Right
-        attributes = [
-            NSFontAttributeName: NSFont(name: "Belwe Bd BT", size: 18)!,
-            NSForegroundColorAttributeName: NSColor.whiteColor(),
-            NSStrokeWidthAttributeName: -1.5,
-            NSStrokeColorAttributeName: NSColor.blackColor(),
-            NSParagraphStyleAttributeName: paragraph
-        ]
-        largeAttributes = [
-            NSFontAttributeName: NSFont(name: "Belwe Bd BT", size: 26)!,
-            NSForegroundColorAttributeName: NSColor.whiteColor(),
-            NSStrokeWidthAttributeName: -1.5,
-            NSStrokeColorAttributeName: NSColor.blackColor(),
-            NSParagraphStyleAttributeName: paragraph
-        ]
 
-        self.window!.styleMask = NSBorderlessWindowMask
+        attributes
+            .font(NSFont(name: "Belwe Bd BT", size: 18))
+            .foregroundColor(NSColor.whiteColor())
+            .strokeWidth(-1.5)
+            .strokeColor(NSColor.blackColor())
+            .alignment(.Right)
+        largeAttributes
+            .font(NSFont(name: "Belwe Bd BT", size: 26))
+            .foregroundColor(NSColor.whiteColor())
+            .strokeWidth(-1.5)
+            .strokeColor(NSColor.blackColor())
+            .alignment(.Right)
+
+        self.window!.styleMask = [NSBorderlessWindowMask, NSNonactivatingPanelMask]
         self.window!.ignoresMouseEvents = true
         self.window!.level = Int(CGWindowLevelForKey(CGWindowLevelKey.ScreenSaverWindowLevelKey))
 
         self.window!.opaque = false
         self.window!.hasShadow = false
-        self.window!.backgroundColor = NSColor(red: 0, green: 0, blue: 0, alpha: 0)
+        self.window!.backgroundColor = NSColor.clearColor()
+
+        NSNotificationCenter.defaultCenter()
+            .addObserver(self,
+                         selector: #selector(TimerHud.hearthstoneActive(_:)),
+                         name: "hearthstone_active",
+                         object: nil)
+        
+        self.window!.collectionBehavior = [.CanJoinAllSpaces, .FullScreenAuxiliary]
+        
+        if let panel = self.window as? NSPanel {
+            panel.floatingPanel = true
+        }
+        
+        NSWorkspace.sharedWorkspace().notificationCenter
+            .addObserver(self, selector: #selector(TimerHud.bringToFront),
+                         name: NSWorkspaceActiveSpaceDidChangeNotification, object: nil)
+        
+        self.window?.orderFront(nil) // must be called after style change
+    }
+    
+    func bringToFront() {
+        self.window?.orderFront(nil)
     }
 
-    func tick(seconds: Int, _ playerSeconds: Int, _ opponentSeconds: Int) {
+    func hearthstoneActive(notification: NSNotification) {
+        let hs = Hearthstone.instance
+
+        let level: Int
+        if hs.hearthstoneActive {
+            level = Int(CGWindowLevelForKey(CGWindowLevelKey.ScreenSaverWindowLevelKey))
+        } else {
+            level = Int(CGWindowLevelForKey(CGWindowLevelKey.NormalWindowLevelKey))
+        }
+        self.window!.level = level
+    }
+
+    func tick(seconds: Int, playerSeconds: Int, opponentSeconds: Int) {
         guard Settings.instance.showTimer else {
             turnLabel.attributedStringValue = NSAttributedString(string: "")
             playerLabel.attributedStringValue = NSAttributedString(string: "")
             opponentLabel.attributedStringValue = NSAttributedString(string: "")
             return
         }
-        
-        turnLabel.attributedStringValue = NSAttributedString(string: String(format: "%d:%02d", (seconds / 60) % 60, seconds % 60), attributes: largeAttributes)
-        playerLabel.attributedStringValue = NSAttributedString(string: String(format: "%d:%02d", (playerSeconds / 60) % 60, playerSeconds % 60), attributes: attributes)
-        opponentLabel.attributedStringValue = NSAttributedString(string: String(format: "%d:%02d", (opponentSeconds / 60) % 60, opponentSeconds % 60), attributes: attributes)
+
+        turnLabel.attributedStringValue = NSAttributedString(string:
+            String(format: "%d:%02d", (seconds / 60) % 60, seconds % 60),
+                                                             attributes: largeAttributes)
+        playerLabel.attributedStringValue = NSAttributedString(string:
+            String(format: "%d:%02d", (playerSeconds / 60) % 60, playerSeconds % 60),
+                                                               attributes: attributes)
+        opponentLabel.attributedStringValue = NSAttributedString(string:
+            String(format: "%d:%02d", (opponentSeconds / 60) % 60, opponentSeconds % 60),
+                                                                 attributes: attributes)
     }
 }

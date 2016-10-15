@@ -10,24 +10,39 @@
 
 import Cocoa
 
-class InitialConfiguration: NSWindowController, NSComboBoxDataSource, NSComboBoxDelegate {
+class InitialConfiguration: NSWindowController, NSComboBoxDataSource,
+NSComboBoxDelegate, NSOpenSavePanelDelegate {
 
     @IBOutlet weak var hstrackerLanguage: NSComboBox!
     @IBOutlet weak var hearthstoneLanguage: NSComboBox!
     @IBOutlet var saveButton: NSButton!
     @IBOutlet var hearthstonePath: NSTextField!
+    @IBOutlet weak var choosePath: NSButton!
+    @IBOutlet weak var checkImage: NSImageView!
 
     var completionHandler: (() -> Void)?
-
-    let hsLanguages = ["deDE", "enUS", "esES", "esMX", "frFR", "itIT", "koKR", "plPL", "ptBR", "ruRU", "zhCN", "zhTW", "jaJP", "thTH"]
-    let hearthstoneLanguages = ["de_DE", "en_US", "es_ES", "es_MX", "fr_FR", "it_IT", "ko_KR", "pl_PL", "pt_BR", "ru_RU", "zh_CN", "zh_TW", "ja_JP", "th_TH"]
-    let hstrackerLanguages = ["de", "en", "fr", "it", "pt-br", "zh-cn", "es"]
 
     override func windowDidLoad() {
         super.windowDidLoad()
 
         hearthstoneLanguage.reloadData()
         hstrackerLanguage.reloadData()
+
+        if let path = Hearthstone.findHearthstone() {
+            hearthstonePath.stringValue = path
+            hearthstonePath.enabled = false
+            choosePath.enabled = false
+        } else {
+            checkImage.image = NSImage(named: "error")
+
+            let alert = NSAlert()
+            alert.alertStyle = .Critical
+            // swiftlint:disable line_length
+            alert.messageText = NSLocalizedString("Can't find Hearthstone, please select Hearthstone.app", comment: "")
+            // swiftlint:enable line_length
+            alert.addButtonWithTitle(NSLocalizedString("OK", comment: ""))
+            alert.beginSheetModalForWindow(self.window!, completionHandler: nil)
+        }
     }
 
     // MARK: - Button actions
@@ -36,12 +51,18 @@ class InitialConfiguration: NSWindowController, NSComboBoxDataSource, NSComboBox
     }
 
     @IBAction func save(sender: AnyObject) {
-        let hstracker = hstrackerLanguages[hstrackerLanguage!.indexOfSelectedItem]
-        let hearthstone = hsLanguages[hearthstoneLanguage!.indexOfSelectedItem]
+        if hearthstoneLanguage.indexOfSelectedItem < 0
+            || hstrackerLanguage.indexOfSelectedItem < 0
+            || hearthstonePath.stringValue == "" {
+            saveButton.enabled = false
+            return
+        }
+        let hstracker = Language.hstrackerLanguages[hstrackerLanguage.indexOfSelectedItem]
+        let hearthstone = Language.hsLanguages[hearthstoneLanguage.indexOfSelectedItem]
 
         Settings.instance.hearthstoneLanguage = hearthstone
         Settings.instance.hsTrackerLanguage = hstracker
-        Settings.instance.hearthstoneLogPath = hearthstonePath!.stringValue
+        Settings.instance.hearthstoneLogPath = hearthstonePath.stringValue
 
         if let completionHandler = self.completionHandler {
             dispatch_async(dispatch_get_main_queue()) {
@@ -53,12 +74,18 @@ class InitialConfiguration: NSWindowController, NSComboBoxDataSource, NSComboBox
 
     @IBAction func choosePath(sender: AnyObject) {
         let openDialog = NSOpenPanel()
-        openDialog.canChooseDirectories = true
+        openDialog.delegate = self
+        openDialog.canChooseDirectories = false
         openDialog.allowsMultipleSelection = false
-        openDialog.title = NSLocalizedString("Please choose your Hearthstone directory", comment: "")
+        openDialog.allowedFileTypes = ["app"]
+        openDialog.nameFieldStringValue = "Hearthstone.app"
+        openDialog.title = NSLocalizedString("Please select your Hearthstone app", comment: "")
         if openDialog.runModal() == NSModalResponseOK {
             if let url = openDialog.URLs.first {
-                hearthstonePath.stringValue = url.path! + "/Logs"
+                if let path = url.path {
+                    hearthstonePath.stringValue = path.replace("/Hearthstone.app", with: "")
+                    checkImage.image = NSImage(named: "check")
+                }
             }
         }
         checkToEnableSave()
@@ -67,20 +94,20 @@ class InitialConfiguration: NSWindowController, NSComboBoxDataSource, NSComboBox
     // MARK: - NSComboBoxDataSource methods
     func numberOfItemsInComboBox(aComboBox: NSComboBox) -> Int {
         if aComboBox == hstrackerLanguage {
-            return hstrackerLanguages.count
+            return Language.hstrackerLanguages.count
         } else if aComboBox == hearthstoneLanguage {
-            return hearthstoneLanguages.count
+            return Language.hearthstoneLanguages.count
         }
 
         return 0
     }
 
-    func comboBox(aComboBox: NSComboBox, objectValueForItemAtIndex index: Int) -> AnyObject {
+    func comboBox(aComboBox: NSComboBox, objectValueForItemAtIndex index: Int) -> AnyObject? {
         var language: String?
         if aComboBox == hstrackerLanguage {
-            language = hstrackerLanguages[index]
+            language = Language.hstrackerLanguages[index]
         } else if aComboBox == hearthstoneLanguage {
-            language = hearthstoneLanguages[index]
+            language = Language.hearthstoneLanguages[index]
         }
 
         if let language = language {
@@ -96,8 +123,19 @@ class InitialConfiguration: NSWindowController, NSComboBoxDataSource, NSComboBox
     }
 
     func checkToEnableSave() {
-        if let saveButton = self.saveButton {
-            saveButton.enabled = (hearthstoneLanguage!.indexOfSelectedItem != -1 && hstrackerLanguage!.indexOfSelectedItem != -1 && hearthstonePath!.stringValue != "")
+        saveButton.enabled = (hearthstoneLanguage.indexOfSelectedItem != -1
+            && hstrackerLanguage.indexOfSelectedItem != -1
+            && hearthstonePath.stringValue != "")
+    }
+
+    // MARK: - NSOpenSavePanelDelegate
+    func panel(sender: AnyObject, shouldEnableURL url: NSURL) -> Bool {
+        if url.path!.hasSuffix(".app") {
+            return url.lastPathComponent == "Hearthstone.app"
+        } else {
+            var isDir: ObjCBool = false
+            return NSFileManager.defaultManager().fileExistsAtPath(url.path!,
+                isDirectory: &isDir) && isDir
         }
     }
 }

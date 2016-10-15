@@ -7,13 +7,14 @@
 //
 
 import Cocoa
+import TextAttributes
 import QuartzCore
 
 struct CardCount {
     var count, minion, spell, weapon: Int
 }
 
-class CurveView : NSView {
+class CurveView: NSView {
     var deck: Deck?
     var counts = [Int: CardCount]()
 
@@ -33,10 +34,10 @@ class CurveView : NSView {
             }
             var cardCount = self.counts[cost]
             cardCount!.count += card.count
-            switch (card.type) {
-            case "minion": cardCount!.minion += card.count
-            case "spell": cardCount!.spell += card.count
-            case "weapon": cardCount!.weapon += card.count
+            switch card.type {
+            case .minion: cardCount!.minion += card.count
+            case .spell: cardCount!.spell += card.count
+            case .weapon: cardCount!.weapon += card.count
             default: continue
             }
             counts[cost] = cardCount
@@ -56,9 +57,9 @@ class CurveView : NSView {
         }
         if self.counts.isEmpty { return }
 
-        let barWidth: CGFloat = floor(NSWidth(rect) / 8)
-        let padding: CGFloat = (NSWidth(rect) - (barWidth * 8)) / 8
-        let barHeight: CGFloat = NSHeight(rect) - (padding * 4) - 25
+        let barWidth: CGFloat = floor(rect.width / 8)
+        let padding: CGFloat = (rect.width - (barWidth * 8)) / 8
+        let barHeight: CGFloat = rect.height - (padding * 4) - 25
         let manaHeight: CGFloat = 25
         var x: CGFloat = 0
 
@@ -81,46 +82,55 @@ class CurveView : NSView {
         // and get a unit based on this value
         let oneUnit = Int(barHeight) / biggest
 
-        let style = NSMutableParagraphStyle()
-        style.alignment = NSCenterTextAlignment
-
-        let font = NSFont(name: "Belwe Bd BT", size: 20)
+        let attributes = TextAttributes()
+            .alignment(.Center)
+            .font(NSFont(name: "Belwe Bd BT", size: 20))
+            .foregroundColor(NSColor.whiteColor())
+            .strokeColor(NSColor.blackColor())
+            .strokeWidth(-1.5)
+        let costAttributes = TextAttributes()
+            .alignment(.Center)
+            .font(NSFont.boldSystemFontOfSize(22))
+            .foregroundColor(NSColor.whiteColor())
+            .strokeColor(NSColor.blackColor())
+            .strokeWidth(-1.5)
+        let countAttributes = TextAttributes()
+            .alignment(.Center)
+            .font(NSFont.boldSystemFontOfSize(22))
+            .foregroundColor(NSColor.whiteColor())
+            .strokeColor(NSColor.blackColor())
+            .strokeWidth(-1.5)
 
         for count in 0 ... 7 {
             NSGraphicsContext.saveGraphicsState()
 
             x += padding
 
-            if let mana = ImageCache.asset("mana") {
-                mana.drawInRect(NSMakeRect(x, padding, manaHeight, manaHeight),
-                    fromRect: NSZeroRect,
-                    operation: NSCompositingOperation.CompositeSourceOver,
+            if let mana = NSImage(named: "mana") {
+                mana.drawInRect(NSRect(x: x, y: padding, width: manaHeight, height: manaHeight),
+                    fromRect: NSRect.zero,
+                    operation: .SourceOver,
                     fraction: 1.0)
             }
 
-            var cost = NSAttributedString(string: "\(count)", attributes: [
-                NSParagraphStyleAttributeName: style,
-                NSForegroundColorAttributeName: NSColor.whiteColor(),
-                NSStrokeColorAttributeName: NSColor.blackColor(),
-                NSFontAttributeName: font!,
-                NSStrokeWidthAttributeName: -1.5
-            ])
+            var cost = NSAttributedString(string: "\(count)", attributes: attributes)
 
             var costX = x + 1
             if count == 7 {
                 costX = x - 4
             }
-            cost.drawInRect(NSMakeRect(costX, padding + 6, manaHeight, manaHeight + 2))
+            cost.drawInRect(NSRect(
+                x: costX,
+                y: padding + 6,
+                width: manaHeight,
+                height: manaHeight + 2))
             if count == 7 {
-                cost = NSAttributedString(string: "+", attributes: [
-                    NSParagraphStyleAttributeName: style,
-                    NSForegroundColorAttributeName: NSColor.whiteColor(),
-                    NSStrokeColorAttributeName: NSColor.blackColor(),
-                    NSFontAttributeName: NSFont.boldSystemFontOfSize(22),
-                    NSStrokeWidthAttributeName: -1.5
-                ])
-
-                cost.drawInRect(NSMakeRect(x + 5, padding + 3, manaHeight, manaHeight + 2))
+                cost = NSAttributedString(string: "+", attributes: costAttributes)
+                cost.drawInRect(NSRect(
+                    x: x + 5,
+                    y: padding + 3,
+                    width: manaHeight,
+                    height: manaHeight + 2))
             }
 
             var current = counts[count]
@@ -133,7 +143,7 @@ class CurveView : NSView {
                 var y = padding * 2 + manaHeight
                 for (type, colors) in types {
                     var currentType: Int?
-                    switch (type) {
+                    switch type {
                     case "minion": currentType = current?.minion
                     case "spell": currentType = current?.spell
                     case "weapon": currentType = current?.weapon
@@ -143,7 +153,9 @@ class CurveView : NSView {
                         continue
                     }
 
-                    let barRect = NSMakeRect(x, y, barWidth, CGFloat(currentType! * oneUnit))
+                    let barRect = NSRect(x: x, y: y,
+                                         width: barWidth,
+                                         height: CGFloat(currentType! * oneUnit))
                     y += CGFloat(currentType! * oneUnit)
 
                     let path = NSBezierPath(roundedRect: barRect, xRadius: 0, yRadius: 0)
@@ -151,18 +163,13 @@ class CurveView : NSView {
                         gradient.drawInBezierPath(path, angle: 270)
                     }
                 }
-                let countCards = NSAttributedString(string: "\(howMany)", attributes: [
-                    NSParagraphStyleAttributeName: style,
-                    NSForegroundColorAttributeName: NSColor.whiteColor(),
-                    NSStrokeColorAttributeName: NSColor.blackColor(),
-                    NSFontAttributeName: NSFont.boldSystemFontOfSize(22),
-                    NSStrokeWidthAttributeName: -1.5
-                ])
+                let countCards = NSAttributedString(string: "\(howMany)",
+                                                    attributes: countAttributes)
 
                 let doublePadding: CGFloat = padding * 2
                 let tHowMany: CGFloat = CGFloat(howMany * oneUnit)
                 let currentY: CGFloat = doublePadding + manaHeight + tHowMany - 20
-                countCards.drawInRect(NSMakeRect(x, currentY, barWidth, 30))
+                countCards.drawInRect(NSRect(x: x, y: currentY, width: barWidth, height: 30))
             }
             x += barWidth
             NSGraphicsContext.restoreGraphicsState()

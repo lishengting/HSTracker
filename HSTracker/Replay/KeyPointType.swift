@@ -7,30 +7,31 @@
 //
 
 import Foundation
+import Wrap
 
-enum KeyPointType : String {
-    case Play,
-        Draw,
-        Mulligan,
-        Death,
-        HandDiscard,
-        DeckDiscard,
-        SecretPlayed,
-        SecretTriggered,
-        Turn,
-        Attack,
-        PlayToHand,
-        PlayToDeck,
-        Obtain,
-        Summon,
-        HandPos,
-        BoardPos,
-        PlaySpell,
-        Weapon,
-        WeaponDestroyed,
-        HeroPower,
-        Victory,
-        Defeat,
-        SecretStolen,
-        CreateToDeck
+enum KeyPointType: String, WrappableEnum {
+    case play,
+        draw,
+        mulligan,
+        death,
+        handDiscard,
+        deckDiscard,
+        secretPlayed,
+        secretTriggered,
+        turn,
+        attack,
+        playToHand,
+        playToDeck,
+        obtain,
+        summon,
+        handPos,
+        boardPos,
+        playSpell,
+        weapon,
+        weaponDestroyed,
+        heroPower,
+        victory,
+        defeat,
+        secretStolen,
+        createToDeck
 }

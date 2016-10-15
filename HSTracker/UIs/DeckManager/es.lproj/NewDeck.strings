@@ -1,6 +1,6 @@
 
 /* Class = "NSButtonCell"; title = "Arena deck"; ObjectID = "0dN-Ei-UM2"; */
-"0dN-Ei-UM2.title" = "Mazo para Arena";
+"0dN-Ei-UM2.title" = "Arena or Brawl deck";
 
 /* Class = "NSButtonCell"; title = "Cancel"; ObjectID = "0dg-Pr-Io8"; */
 "0dg-Pr-Io8.title" = "Cancelar";
@@ -25,3 +25,6 @@
 
 /* Class = "NSButtonCell"; title = "Choose file"; ObjectID = "xPi-Gg-ebR"; */
 "xPi-Gg-ebR.title" = "Seleccionar archivo";
+
+/* Class = "NSButtonCell"; title = "From Hearthstats"; ObjectID = "sLd-eV-3AX"; */
+"sLd-eV-3AX.title" = "Importar de Hearthstats";

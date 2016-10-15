@@ -8,34 +8,20 @@
 
 import Cocoa
 
-class CardCounter: TrackerFrame {
-    
-    private let frameRect = NSMakeRect(0, 0, CGFloat(kFrameWidth), 40)
-    private let handFrame = NSMakeRect(65, 4, 68, 25)
-    private let deckFrame = NSMakeRect(160, 4, 68, 25)
-    
+class CardCounter: TextFrame {
+
+    private let frameRect = NSRect(x: 0, y: 0, width: CGFloat(kFrameWidth), height: 40)
+    private let handFrame = NSRect(x: 60, y: 1, width: 68, height: 25)
+    private let deckFrame = NSRect(x: 154, y: 1, width: 68, height: 25)
+
     var handCount = 30
     var deckCount = 0
-    
-    private var imageLayer: CALayer?
-    private var handCountLayer: CATextLayer?
-    private var deckCountLayer: CATextLayer?
 
-    override func updateLayer() {
-        if imageLayer == nil {
-            imageLayer = addChild(ImageCache.asset("card-counter-frame"), frameRect)
-        }
-        if handCountLayer == nil {
-            handCountLayer = addText("\(handCount)", handFrame)
-        }
-        else {
-            setText(handCountLayer!, "\(handCount)")
-        }
-        if deckCountLayer == nil {
-            deckCountLayer = addText("\(deckCount)", deckFrame)
-        }
-        else {
-            setText(deckCountLayer!, "\(deckCount)")
-        }
+    override func drawRect(dirtyRect: NSRect) {
+        super.drawRect(dirtyRect)
+
+        addImage("card-counter-frame.png", rect: frameRect)
+        addInt(handCount, rect: handFrame)
+        addInt(deckCount, rect: deckFrame)
     }
 }

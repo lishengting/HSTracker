@@ -9,33 +9,34 @@
  */
 
 import Foundation
+import Wrap
 
-enum Zone: Int {
-    case INVALID = -1,
-        CREATED = 0,
-        PLAY = 1,
-        DECK = 2,
-        HAND = 3,
-        GRAVEYARD = 4,
-        REMOVEDFROMGAME = 5,
-        SETASIDE = 6,
-        SECRET = 7
+enum Zone: Int, WrappableEnum {
+    case invalid = 0,
+    play = 1,
+    deck = 2,
+    hand = 3,
+    graveyard = 4,
+    removedfromgame = 5,
+    setaside = 6,
+    secret = 7
 
     init?(rawString: String) {
         for _enum in Zone.allValues() {
-            if "\(_enum)" == rawString {
+            if "\(_enum)" == rawString.lowercaseString {
                 self = _enum
                 return
             }
         }
-        if let value = Int(rawString), _enum = Zone(rawValue: value) {
+        if let value = Int(rawString), let _enum = Zone(rawValue: value) {
             self = _enum
             return
         }
-        self = .CREATED
+        self = .invalid
     }
-    
+
     static func allValues() -> [Zone] {
-        return [.INVALID, .CREATED, .PLAY, .DECK, .HAND, .GRAVEYARD, .REMOVEDFROMGAME, .SETASIDE, .SECRET]
+        return [.invalid, .play, .deck, .hand, .graveyard,
+                .removedfromgame, .setaside, .secret]
     }
 }

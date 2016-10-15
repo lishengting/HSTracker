@@ -7,124 +7,84 @@
 //
 
 import Cocoa
+import TextAttributes
 
-let kFrameWidth = 217.0
-let kFrameHeight = 700.0
-let kRowHeight = 34.0
+class TextFrame: NSView {
 
-let kMediumRowHeight = 29.0
-let kMediumFrameWidth = (kFrameWidth / kRowHeight * kMediumRowHeight)
-
-let kSmallRowHeight = 23.0
-let kSmallFrameWidth = (kFrameWidth / kRowHeight * kSmallRowHeight)
-
-enum CardSize: Int {
-    case Small,
-    Medium,
-    Big
-}
-
-class TrackerFrame: NSView {
-    
-    var playerType: PlayerType?
-    
     init() {
-        super.init(frame: NSZeroRect)
+        super.init(frame: NSRect.zero)
         initLayers()
     }
-    
+
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         initLayers()
     }
-    
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         initLayers()
     }
-    
+
     func initLayers() {
         self.wantsLayer = true
-        
+
         self.layer!.backgroundColor = NSColor.clearColor().CGColor
     }
-    
+
     func ratio(rect: NSRect) -> NSRect {
-        return NSMakeRect(rect.origin.x / ratioWidth,
-                          rect.origin.y / ratioHeight,
-                          rect.size.width / ratioWidth,
-                          rect.size.height / ratioHeight)
+        return NSRect(x: rect.origin.x / ratioWidth,
+                      y: rect.origin.y / ratioHeight,
+                      width: rect.size.width / ratioWidth,
+                      height: rect.size.height / ratioHeight)
     }
-    
-     var textAttributes: [String: AnyObject] {
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.alignment = .Right
-        
-        return [
-            NSFontAttributeName: NSFont(name: "Belwe Bd BT", size: round(16 / ratioHeight))!,
-            NSForegroundColorAttributeName: NSColor.whiteColor(),
-            NSStrokeWidthAttributeName: -2,
-            NSStrokeColorAttributeName: NSColor.blackColor(),
-            NSParagraphStyleAttributeName: paragraph
-        ]
-    }
-    
+
     var ratioWidth: CGFloat {
-        if let playerType = playerType where playerType == .DeckManager {
-            return 1.0
-        }
-        
-        var ratio: CGFloat
         switch Settings.instance.cardSize {
-        case .Small: ratio = CGFloat(kRowHeight / kSmallRowHeight)
-        case .Medium: ratio = CGFloat(kRowHeight / kMediumRowHeight)
-        default: ratio = 1.0
+        case .tiny: return CGFloat(kRowHeight / kTinyRowHeight)
+        case .small: return CGFloat(kRowHeight / kSmallRowHeight)
+        case .medium: return CGFloat(kRowHeight / kMediumRowHeight)
+        case .huge: return CGFloat(kRowHeight / kHighRowHeight)
+        case .big: return 1.0
         }
-        return ratio
     }
-    
+
     var ratioHeight: CGFloat {
         return ratioWidth
     }
-    
-    func addChild(image: NSImage?, _ rect: NSRect, _ onLayer: CALayer? = nil) -> CALayer? {
-        guard let _ = image else { return nil }
 
-        let sublayer = CALayer()
-        setImage(sublayer, image)
-        sublayer.frame = ratio(rect)
-        if let onLayer = onLayer {
-            onLayer.addSublayer(sublayer)
+    func addImage(filename: String, rect: NSRect) {
+        let theme = Settings.instance.theme
+
+        var fullPath = NSBundle.mainBundle().resourcePath!
+            + "/Resources/Themes/Overlay/\(theme)/\(filename)"
+        if !NSFileManager.defaultManager().fileExistsAtPath(fullPath) {
+            fullPath = NSBundle.mainBundle().resourcePath!
+                + "/Resources/Themes/Overlay/default/\(filename)"
         }
-        else {
-            self.layer?.addSublayer(sublayer)
-        }
-        return sublayer
+
+        guard let image = NSImage(contentsOfFile: fullPath) else {return}
+        image.drawInRect(ratio(rect))
     }
-    
-    func setImage(sublayer: CALayer, _ image: NSImage?) {
-        guard let _ = image else { return }
-        sublayer.contents = image!
+
+    func addInt(val: Int, rect: NSRect) {
+        addString("\(val)", rect: rect)
     }
-    
-    func addText(str: String, _ rect: NSRect, _ onLayer: CALayer? = nil, _ foreground: NSColor? = nil) -> CATextLayer {
-        let sublayer = CATextLayer()
-        setText(sublayer, str, foreground)
-        sublayer.frame = ratio(rect)
-        if let onLayer = onLayer {
-            onLayer.addSublayer(sublayer)
-        }
-        else {
-            self.layer?.addSublayer(sublayer)
-        }
-        return sublayer
+
+    func addDouble(val: Double, rect: NSRect) {
+        let format = val == Double(Int(val)) ? "%.0f%%" : "%.2f%%"
+        addString(String(format: format, val), rect: rect)
     }
-    
-    func setText(sublayer: CATextLayer, _ str: String, _ foreground: NSColor? = nil) {
-        var attributes = textAttributes
-        if let foreground = foreground {
-            attributes[NSForegroundColorAttributeName] = foreground
-        }
-        sublayer.string = NSAttributedString(string: str, attributes: attributes)
+
+    func addString(val: String, rect: NSRect, alignment: NSTextAlignment = .Left) {
+        let attributes = TextAttributes()
+            .font(NSFont(name: "ChunkFive", size: round(18 / ratioHeight)))
+            .foregroundColor(NSColor.whiteColor())
+            .strokeColor(NSColor.blackColor())
+            .strokeWidth(-2)
+            .alignment(alignment)
+
+        NSAttributedString(string: val, attributes: attributes)
+            .drawInRect(ratio(rect))
     }
 }

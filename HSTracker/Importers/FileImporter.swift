@@ -7,57 +7,70 @@
 //
 
 import Foundation
+import CleanroomLogger
 
-final class FileImporter: BaseNetImporter {
-    
-    func fileImport(url: NSURL, _ completion: Deck? -> Void) {
+struct FileImporter: BaseFileImporter {
+
+    func fileImport(url: NSURL) -> Deck? {
         let deckName = url.lastPathComponent?.replace("\\.txt$", with: "")
-        var className = ""
+        Log.verbose?.message("Got deck name \(deckName)")
+
         var isArena = false
+
+        let fileContent: [String]?
         do {
             let content = try NSString(contentsOfURL: url, encoding: NSUTF8StringEncoding)
-            let lines = content.componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet())
-            
-            var cards = [String: Int]()
-            let regex = "(\\d)(\\s|x)?([\\w\\s'\\.:!-]+)"
-            for line in lines {
-                // match "2xMirror Image" as well as "2 Mirror Image" or "2 GVG_002"
-                if line.match(regex) {
-                    let matches = line.matches(regex)
-                    let cardName = matches[2].value.trim()
-                    if let count = Int(matches[0].value) {
-                        if count > 2 {
-                            isArena = true
+            fileContent = content
+                .componentsSeparatedByCharactersInSet(NSCharacterSet.newlineCharacterSet())
+        } catch let error {
+            Log.error?.message("\(error)")
+            return nil
+        }
+
+        guard let lines = fileContent else {
+            Log.error?.message("Card list not found")
+        }
+
+        let deck = Deck(playerClass: .neutral, name: deckName)
+
+        let regex = "(\\d)(\\s|x)?([\\w\\s'\\.:!-]+)"
+        for line in lines {
+            // match "2xMirror Image" as well as "2 Mirror Image" or "2 GVG_002"
+            if line.match(regex) {
+                let matches = line.matches(regex)
+                let cardName = matches[2].value.trim()
+                if let count = Int(matches[0].value) {
+                    if count > 2 {
+                        isArena = true
+                    }
+
+                    var card = Cards.by(cardId: cardName)
+                    if card == nil {
+                        card = Cards.by(englishName: cardName)
+                    }
+                    if card == nil {
+                        card = Cards.by(name: cardName)
+                    }
+
+                    if let card = card {
+                        if card.playerClass != .neutral && deck.playerClass == .neutral {
+                            deck.playerClass = card.playerClass
+                            Log.verbose?.message("Got class \(deck.playerClass)")
                         }
-                        
-                        var card = Cards.byId(cardName)
-                        if card == nil {
-                            card = Cards.byEnglishName(cardName)
-                        }
-                        if card == nil {
-                            card = Cards.byName(cardName)
-                        }
-                        
-                        if let card = card {
-                            if card.playerClass != "" && card.playerClass != "neutral" && String.isNullOrEmpty(className) {
-                                className = card.playerClass
-                            }
-                            
-                            cards[card.id] = count
-                        }
+                        card.count = count
+                        Log.verbose?.message("Got card \(card)")
+                        deck.addCard(card)
                     }
                 }
             }
-            
-            if !String.isNullOrEmpty(className) && self.isCount(cards) {
-                saveDeck(deckName, className, cards, isArena, completion)
-                return
-            }
         }
-        catch {
+        deck.isArena = isArena
+
+        guard deck.playerClass != .neutral else {
+            Log.error?.message("Class not found")
+            return nil
         }
-        
-        // TODO add error
-        completion(nil)
+
+        return deck
     }
 }

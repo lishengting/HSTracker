@@ -9,35 +9,47 @@
 import Foundation
 import MASPreferences
 
-class GeneralPreferences : NSViewController, MASPreferencesViewController {
-    
+class GeneralPreferences: NSViewController {
+
     @IBOutlet weak var notifyGameStart: NSButton!
     @IBOutlet weak var notifyTurnStart: NSButton!
     @IBOutlet weak var notifyOpponentConcede: NSButton!
+    @IBOutlet weak var closeTrackerWhenHSCloses: NSButton!
+    @IBOutlet weak var promptNote: NSButton!
+    @IBOutlet weak var saveReplays: NSButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         let settings = Settings.instance
         notifyGameStart.state = settings.notifyGameStart ? NSOnState : NSOffState
         notifyTurnStart.state = settings.notifyTurnStart ? NSOnState : NSOffState
         notifyOpponentConcede.state = settings.notifyOpponentConcede ? NSOnState : NSOffState
+        closeTrackerWhenHSCloses.state = settings.quitWhenHearthstoneCloses ? NSOnState : NSOffState
+        promptNote.state = settings.promptNotes ? NSOnState : NSOffState
+        saveReplays.state = settings.saveReplays ? NSOnState : NSOffState
     }
-    
+
     @IBAction func checkboxClicked(sender: NSButton) {
         let settings = Settings.instance
         if sender == notifyGameStart {
             settings.notifyGameStart = notifyGameStart.state == NSOnState
-        }
-        else if sender == notifyTurnStart {
+        } else if sender == notifyTurnStart {
             settings.notifyTurnStart = notifyTurnStart.state == NSOnState
-        }
-        else if sender == notifyOpponentConcede {
+        } else if sender == notifyOpponentConcede {
             settings.notifyOpponentConcede = notifyOpponentConcede.state == NSOnState
+        } else if sender == closeTrackerWhenHSCloses {
+            settings.quitWhenHearthstoneCloses = closeTrackerWhenHSCloses.state == NSOnState
+        } else if sender == promptNote {
+            settings.promptNotes = promptNote.state == NSOnState
+        } else if sender == saveReplays {
+            settings.saveReplays = saveReplays.state == NSOnState
         }
     }
 
-    // MARK: - MASPreferencesViewController
+}
+// MARK: - MASPreferencesViewController
+extension GeneralPreferences: MASPreferencesViewController {
     override var identifier: String? {
         get {
             return "general"
@@ -47,12 +59,12 @@ class GeneralPreferences : NSViewController, MASPreferencesViewController {
         }
     }
 
-    var toolbarItemImage: NSImage! {
+    var toolbarItemImage: NSImage? {
         return NSImage(named: NSImageNameAdvanced)
 
     }
 
-    var toolbarItemLabel: String! {
+    var toolbarItemLabel: String? {
         return NSLocalizedString("General", comment: "")
     }
 }
